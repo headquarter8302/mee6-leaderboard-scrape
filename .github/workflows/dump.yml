@@ -44,7 +44,7 @@ jobs:
     - name: Fetch level dump
       run: |
         for ((i = 0; i < ${{ env.ITER_COUNT }}; i++)); do
-          curl "${{ ev.LEADERBOARD_URL }}?page=$i" >> ${{ env.DUMP_FILENAME }}
+          curl "${{ env.LEADERBOARD_URL }}?page=$i" >> ${{ env.DUMP_FILENAME }}
           sleep ${{ env.WAIT }}
         done
 
