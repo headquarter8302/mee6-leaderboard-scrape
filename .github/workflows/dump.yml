@@ -1,0 +1,55 @@
+name: Fetch and dump levels
+
+on:
+  schedule:
+  # Specify a cadence, don't set it too often
+  - cron: 0 0 * * *
+  
+  # Manually trigger a workflow
+  workflow_dispatch:
+
+# Parameters:
+# ITER_COUNT: number
+# WAIT: time
+# DUMP_FILENAME: string
+# LEADERBOARD_URL: url string 
+env:
+  # How many pages of the leaderboard to scrape
+  ITER_COUNT: 300
+  
+  # How long to wait for each subsequent cURL request
+  # >>> Don't set this too low or you'll trip Cloudflare's ratelimit
+  # Make sure you don't set this for too long, or else you either go beyond GitHub's Actions runner time limit, or duplicate the run
+  WAIT: 30s
+
+  # Set the resulting file name here
+  DUMP_FILENAME: "dump.json"
+
+  # Replace the URL here with the URL from the command `!levels`
+  LEADERBOARD_URL: "https://mee6.xyz/api/plugins/levels/leaderboard/{ID HERE}"
+
+jobs:
+  fetch-and-dump:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    - name: Remove previous dump
+      run: "rm ${{ env.DUMP_FILENAME }} || echo 'No file to remove'"
+
+    - name: Fetch level dump
+      run: |
+        for ((i = 0; i < ${{ env.ITER_COUNT }}; i++)); do
+          curl "${{ ev.LEADERBOARD_URL }}?page=$i" >> ${{ env.DUMP_FILENAME }}
+          sleep ${{ env.WAIT }}
+        done
+
+    - name: Commit and push changes
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add dump.json
+        git commit -m "Update ${{ env.DUMP_FILENAME }}" || echo "Source is same as repo"
+        git push
