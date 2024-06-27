@@ -1,9 +1,11 @@
 name: Fetch and dump levels
 
 on:
-  schedule:
   # Specify a cadence, don't set it too often
-  - cron: 0 0 * * *
+  # Uncomment `schedule:` and `- cron:` to activate scheduled running
+  
+  # schedule:
+  #- cron: 0 0 * * *
   
   # Manually trigger a workflow
   workflow_dispatch:
